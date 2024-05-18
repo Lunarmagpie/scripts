@@ -1,0 +1,124 @@
+#!/bin/env python
+
+from __future__ import annotations
+
+import dataclasses
+import pathlib
+import enum
+import subprocess
+import time
+
+POWER_SUPPLY_PATH = pathlib.Path("/sys/class/power_supply")
+BATTERY_TYPE = pathlib.Path("type")
+BATTERY_CAPACITY = pathlib.Path("capacity")
+BATTERY_STATUS = pathlib.Path("status")
+
+
+class Message(enum.Enum):
+    FullyCharged = enum.auto()
+    TwentyPercentRemaining = enum.auto()
+    TenPercentRemaining = enum.auto()
+    FivePercentRemaining = enum.auto()
+
+    @staticmethod
+    def send(message_type: Message):
+        message: str
+        urgency: str
+        match message_type:
+            case Message.FullyCharged:
+                message = "Fully charged"
+                urgency = "normal"
+            case Message.TwentyPercentRemaining:
+                message = "20% Remaining"
+                urgency = "normal"
+            case Message.TenPercentRemaining:
+                message = "10% Remaining"
+                urgency = "normal"
+            case Message.FivePercentRemaining:
+                message = "5% Remaining"
+                urgency = "critical"
+
+        subprocess.run(["notify-send", message, "--urgency", urgency])
+
+@dataclasses.dataclass
+class Battery:
+    path: pathlib.Path
+    percent: int = 100
+    charging: bool = False
+
+    sent_messages: list[Message] = dataclasses.field(default_factory=list)
+
+    def __post_init__(self):
+        self.sent_messages = [
+            Message.FullyCharged,
+            Message.TwentyPercentRemaining,
+            Message.TenPercentRemaining,
+            Message.FivePercentRemaining,
+        ]
+
+    @classmethod
+    def from_path(cls, path: pathlib.Path) -> Battery | None:
+        battery = cls(path)
+
+        if (path / BATTERY_TYPE).open().readline().strip() != "Battery":
+            return None
+
+        battery.update()
+
+        return battery
+
+    def update(self):
+        self.percent = int((self.path / BATTERY_CAPACITY).open().readline().strip())
+        self.charging = (
+            self.path / BATTERY_STATUS
+        ).open().readline().strip() == "Charging"
+
+    def check(self):
+        # First reset messages
+        if self.percent <= 99 and Message.FullyCharged in self.sent_messages:
+            self.sent_messages.remove(Message.FullyCharged)
+
+        if self.percent >= 21 and Message.TwentyPercentRemaining in self.sent_messages:
+            self.sent_messages.remove(Message.TwentyPercentRemaining)
+        if self.percent >= 11 and Message.TenPercentRemaining in self.sent_messages:
+            self.sent_messages.remove(Message.TenPercentRemaining)
+        if self.percent >= 6 and Message.FivePercentRemaining in self.sent_messages:
+            self.sent_messages.remove(Message.FivePercentRemaining)
+
+        if self.percent == 100 and Message.FullyCharged not in self.sent_messages:
+            Message.send(Message.FullyCharged)
+            self.sent_messages.append(Message.FullyCharged)
+        if (
+            self.percent == 20
+            and Message.TwentyPercentRemaining not in self.sent_messages
+        ):
+            Message.send(Message.TwentyPercentRemaining)
+            self.sent_messages.append(Message.TwentyPercentRemaining)
+        if self.percent == 10 and Message.TenPercentRemaining not in self.sent_messages:
+            Message.send(Message.TenPercentRemaining)
+            self.sent_messages.append(Message.TenPercentRemaining)
+        if self.percent == 5 and Message.FivePercentRemaining not in self.sent_messages:
+            Message.send(Message.FivePercentRemaining)
+            self.sent_messages.append(Message.FivePercentRemaining)
+
+
+def open_batteries() -> list[Battery]:
+    batteries = []
+
+    for path in POWER_SUPPLY_PATH.iterdir():
+        if (bat := Battery.from_path(path)) != None:
+            batteries.append(bat)
+
+    return batteries
+
+
+def main():
+    batteries = open_batteries()
+    while True:
+        for bat in batteries:
+            bat.update()
+            bat.check()
+        time.sleep(10)
+
+if __name__ == "__main__":
+    main()
