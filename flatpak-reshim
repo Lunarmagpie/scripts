@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-# Create shims that allow flatpak apps to be executed from the command line.
+# Create shims that allow flatpak apps to be executed from the command line by only using the end part of the packge name.
+# ie com.valvesoftware.Steam -> steam
 # Requires "~/.flatpak-shims" to be added to $PATH.
 
 import subprocess
