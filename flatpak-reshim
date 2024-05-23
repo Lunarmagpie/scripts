@@ -8,6 +8,7 @@ import subprocess
 import os
 import stat
 import shutil
+import textwrap
 
 DIRS = [
     os.path.expanduser("~/.local/share/flatpak/exports/share/applications/"),
@@ -34,10 +35,10 @@ def main():
             file = f"{SHIM_PATH}/{app_name}"
 
             with open(file, "w") as f:
-                f.write(f"""
+                f.write(textwrap.dedent(f"""\
                     #!/bin/sh
                     exec flatpak run {full_app_name}
-                """)
+                """))
     
             st = os.stat(file)
             os.chmod(file, st.st_mode | stat.S_IEXEC)
