@@ -161,10 +161,8 @@ if __name__ == "__main__":
     try:
         res = main()
     except Exception as e:
-        raise e
         res = "Launcher Error: " + str(e)
         urgency = "critical"
-    if res:
-        pass
+    if res and urgency == "critical":
         subprocess.run(["notify-send", f"--urgency={urgency}", res])
 
