@@ -1,0 +1,20 @@
+#/bin/fish
+
+
+
+sudo apt-get -y install \
+	linux-headers-amd64 \
+	fish \
+	vim \
+
+	sway \
+	wl-clipboard \
+	fuzzel \
+	flatpak \
+
+	nvidia-driver firmware-misc-nonfree
+
+
+flatpak install -y com.discordapp.Discord
+flatpak install -y com.ablaze.floorp
+flatpak install -y com.valvesoftware.Steam

@@ -26,11 +26,13 @@ def main():
     
     # All the executable apps are in these folders
     for dir in DIRS:
+        if not os.path.exists(dir):
+            continue
         for file in os.listdir(dir):
             if "mimeinfo.cache" in file:
                 continue
-            full_app_name = file.removesuffix(".desktop")
-            app_name = full_app_name.split(".")[2].lower()
+            full_app_name = file.removesuffix(".desktop")          
+            app_name = full_app_name.split(".")[-1].lower()
 
             file = f"{SHIM_PATH}/{app_name}"
 
