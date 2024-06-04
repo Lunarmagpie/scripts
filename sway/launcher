@@ -105,56 +105,25 @@ def main() -> str | None:
 
     if not res:
         return None
-    if res.strip().isnumeric() and int(res) >= 0:
-        res = int(res)
-        if res < goto_count:
-            id = paths.split('\n')[res].strip(GOTO_PREFIX).split(" ")[0].strip()
-            p = subprocess.run(["swaymsg", f"[con_id={id}]", "focus"])
-            if p.stderr and p.returncode != 0:
-                return p.stderr.decode('utf8')
-            return None
-        else:
-            # find the command
-            app = apps[res - goto_count]
-            print(app)
-            cmd = app.exec.replace("%u", "").replace("%U", "").replace("%f", "")
-            p = subprocess.run(cmd, shell=True, capture_output=True)
-            if p.stderr and p.returncode != 0:
-                return p.stderr.decode('utf8')
+    if not res.strip().isnumeric() or int(res) <= 0:
         return None
 
-    if res.startswith("eval") or res.startswith("="):
-        name = res.strip().removeprefix("eval").removeprefix("=")
-
-        import math
-
-        try:
-            return f"{name}={str(eval(res.removeprefix('eval').removeprefix('='), None, math.__dict__))}"
-        except Exception as e:
-            return str(e)
-
-    if res.startswith("$"):
-        query = res[1:].replace(" ", "+").strip()
-        input = ["xdg-open", f"https://duckduckgo.com/?q={query}&t=newext&atb=v425-5__&ia=web"]
-        subprocess.run(input)
-
-    if res.startswith("scale"):
-        p = subprocess.run(
-            ["/home/lunar/.config/sway/change_scale", res], capture_output=True
-        )
-        name = "Set scale to "
-        o = p.stdout.decode("utf8")
-        return f"{name}{o}"
-
-    # This is a terminal command
-    name = res
-    p = subprocess.run(res, shell=True, capture_output=True, check=True)
-    if p.stdout:
-        o = p.stdout.decode("utf8")
-    elif p.stderr:
-        o = p.stderr.decode("utf8")
-    return f"{o}"
-
+    res = int(res)
+    if res < goto_count:
+        id = paths.split('\n')[res].strip(GOTO_PREFIX).split(" ")[0].strip()
+        p = subprocess.run(["swaymsg", f"[con_id={id}]", "focus"])
+        if p.stderr and p.returncode != 0:
+            return p.stderr.decode('utf8')
+        return None
+    else:
+        # find the command
+        app = apps[res - goto_count]
+        print(app)
+        cmd = app.exec.replace("%u", "").replace("%U", "").replace("%f", "")
+        p = subprocess.run(cmd, shell=True, capture_output=True)
+        if p.stderr and p.returncode != 0:
+            return p.stderr.decode('utf8')
+    return None
 
 if __name__ == "__main__":
     urgency = "normal"
