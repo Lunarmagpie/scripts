@@ -1,0 +1,19 @@
+#!/bin/bash
+
+path=$(git rev-parse --show-toplevel || pwd)
+session="${path////_}"
+
+if [ "$1" == '--kill' ]; then
+	pkill -f "$session"
+	exit 0
+fi
+
+kak -l | grep "$session" >> /dev/null
+
+if [ $? != 0 ]; then
+    setsid kak -s "$session" -d &
+    sleep .05
+fi
+
+kak -c $session -e "buffer *scratch*; exec <space>f"
+
