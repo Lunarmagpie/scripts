@@ -1,0 +1,13 @@
+#!/bin/sh
+
+if [ -z $1 ]; then
+	echo "Please provide a mark."
+	exit 1
+fi
+
+marks="/tmp/markfile.$1.tmp"
+
+echo $(pwd) > $marks
+
+echo "Mark $1 saved"
+
