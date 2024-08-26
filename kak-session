@@ -15,5 +15,7 @@ if [ $? != 0 ]; then
     sleep .05
 fi
 
-kak -c $session -e "buffer *scratch*; exec <space>f"
+mark kakoune
+
+exec kak -c $session -e "buffer *scratch*; exec <space>f"
 

@@ -10,6 +10,6 @@ marks="/tmp/markfile.$1.tmp"
 if [ -f $marks ]; then
     echo $(cat $marks)
 else
-	echo "Could not find a mark for $1"
+	echo "Could not find a mark for $1" 1>&2
 	exit
 fi
