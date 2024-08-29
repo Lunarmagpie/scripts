@@ -1,0 +1,12 @@
+#!/usr/bin/env python
+# A script to convert the program's stdin to title case.
+
+import sys
+
+if len(sys.argv) >= 2:
+    print(sys.argv[1].title(), end='')
+    exit(0)
+
+print(sys.stdin.read().title(), end='')
+
+
