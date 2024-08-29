@@ -17,5 +17,5 @@ fi
 
 mark kakoune
 
-exec kak -c $session -e "buffer *scratch*; exec <space>f"
+kak -c $session -e "buffer *scratch*; exec <space>f"
 

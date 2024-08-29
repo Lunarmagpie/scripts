@@ -1,13 +1,28 @@
 #!/bin/sh
 
-if [ -z $1 ]; then
+mark=$1
+if [ "$1" = '--remove' ]; then
+	mark=$2
+	rm "$HOME/.local/state/marks/$mark"
+	exit
+fi
+
+if [ "$1" = '--list' ]; then
+    fd . "$HOME/.local/state/marks" -t=file -x xargs sh -c 'echo {}=$(cat {})'
+    exit 0
+fi
+
+if [ -z "$1" ]; then
 	echo "Please provide a mark."
 	exit 1
 fi
 
-marks="/tmp/markfile.$1.tmp"
+if [ ! -d "$HOME/.local/state/marks" ]; then
+    mkdir -p "$HOME/.local/state/marks"
+fi
 
-echo $(pwd) > $marks
+touch "$HOME/.local/state/marks/$1"
+echo $(pwd) > "$HOME/.local/state/marks/$1"
 
 echo "Mark $1 saved"
 
