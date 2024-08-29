@@ -8,7 +8,7 @@ if [ "$1" = '--remove' ]; then
 fi
 
 if [ "$1" = '--list' ]; then
-    fd . "$HOME/.local/state/marks" -t=file -x xargs sh -c 'echo {}=$(cat {})'
+    fd . "$HOME/.local/state/marks" -t=file -x xargs sh -c 'echo $(basename {})=$(cat {} | sd $HOME "~")'
     exit 0
 fi
 
