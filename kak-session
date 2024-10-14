@@ -15,7 +15,7 @@ if [ $? != 0 ]; then
     sleep .05
 fi
 
-mark kakoune
+swaymsg layout tabbed
 
 kak -c $session -e "buffer *scratch*; exec <space>f"
 

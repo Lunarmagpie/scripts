@@ -1,2 +1,3 @@
+#/bin/bash
 sudo setcap 'cap_sys_tty_config+ep' $(which fbterm)
 

@@ -1,0 +1,4 @@
+#!/bin/bash
+FOCUS=$(swaymsg -t get_tree | jq -r '.nodes.[].nodes.[] | select(.type == "workspace").name' | tail -n +4 | sort | tail -n +$1 | head -n1 | xargs)
+swaymsg workspace $FOCUS
+
