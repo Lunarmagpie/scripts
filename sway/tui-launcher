@@ -100,8 +100,6 @@ def main() -> str | None:
         input_command, input=paths.encode('utf8')
     ).decode('utf8').strip()
 
-    print(res)
-
     if not res:
         return None
 
@@ -115,7 +113,7 @@ def main() -> str | None:
         # find the command
         app = [a for a in apps if a.name == res][0]
         cmd = app.exec.replace("%u", "").replace("%U", "").replace("%f", "")
-        p = subprocess.run(cmd, shell=True, capture_output=True)
+        p = subprocess.run(f"nohup {cmd} &", shell=True, capture_output=False, check=False)
         if p.stderr and p.returncode != 0:
             return p.stderr.decode('utf8')
     return None
@@ -160,5 +158,8 @@ if __name__ == "__main__":
     except Exception as e:
         res = "Launcher Error: " + str(e)
         urgency = "critical"
+
+    exit(0)
+
     # if res:
     #     subprocess.run(["notify-send", f"--urgency={urgency}", res])
